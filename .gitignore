@@ -14,7 +14,6 @@ inflections
 language
 common
 polyfills
-index.js
 package.json
 .npmignore
 node_modules
