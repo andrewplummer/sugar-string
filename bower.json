@@ -1,0 +1,35 @@
+{
+  "name": "sugar-string",
+  "description": "A Javascript utility library for working with native objects. String module.",
+  "homepage": "https://sugarjs.com/",
+  "license": "MIT",
+  "authors": [
+    "Andrew Plummer <plummer.andrew@gmail.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/andrewplummer/Sugar.git"
+  },
+  "keywords": [
+    "sugar",
+    "sugarjs",
+    "functional",
+    "browser",
+    "utility",
+    "util",
+    "string"
+  ],
+  "main": "dist/sugar-string.js",
+  "ignore": [
+    "**/*",
+    "!dist/*",
+    "!dist/locales/*",
+    "!CHANGELOG.md",
+    "!CAUTION.md",
+    "!README.md",
+    "!LICENSE"
+  ],
+  "moduleType": [
+    "globals"
+  ]
+}
