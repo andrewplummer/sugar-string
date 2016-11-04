@@ -1,5 +1,5 @@
 /*
- *  Sugar v2.0.0
+ *  Sugar v2.0.2
  *
  *  Freely distributable and licensed under the MIT-style license.
  *  Copyright (c) Andrew Plummer
@@ -94,9 +94,9 @@
   }
 
   /***
-   * @method createNamespace(<name>)
-   * @returns Namespace
-   * @global
+   * @method createNamespace(name)
+   * @returns SugarNamespace
+   * @namespace Sugar
    * @short Creates a new Sugar namespace.
    * @extra This method is for plugin developers who want to define methods to be
    *        used with natives that Sugar does not handle by default. The new
@@ -109,6 +109,8 @@
    *
    *   Sugar.createNamespace('Boolean');
    *
+   * @param {string} name - The namespace name.
+   *
    ***/
   function createNamespace(name) {
 
@@ -119,14 +121,13 @@
     var sugarNamespace = getNewChainableClass(name, true);
 
     /***
-     * @method extend([options])
+     * @method extend([opts])
      * @returns Sugar
-     * @global
-     * @namespace
+     * @namespace Sugar
      * @short Extends Sugar defined methods onto natives.
      * @extra This method can be called on individual namespaces like
      *        `Sugar.Array` or on the `Sugar` global itself, in which case
-     *        [options] will be forwarded to each `extend` call. For more,
+     *        [opts] will be forwarded to each `extend` call. For more,
      *        see `extending`.
      *
      * @options
@@ -158,6 +159,22 @@
      *
      *   Sugar.Array.extend();
      *   Sugar.extend();
+     *
+     * @option {Array<string>} [methods]
+     * @option {Array<string|NativeConstructor>} [except]
+     * @option {Array<NativeConstructor>} [namespaces]
+     * @option {boolean} [enhance]
+     * @option {boolean} [enhanceString]
+     * @option {boolean} [enhanceArray]
+     * @option {boolean} [objectPrototype]
+     * @param {ExtendOptions} [opts]
+     *
+     ***
+     * @method extend([opts])
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
+     * @short Extends Sugar defined methods for a specific namespace onto natives.
+     * @param {ExtendOptions} [opts]
      *
      ***/
     var extend = function (opts) {
@@ -255,7 +272,7 @@
         // methods, so add a flag here to check later.
         setProperty(sugarNamespace, 'active', true);
       }
-      return Sugar;
+      return sugarNamespace;
     };
 
     function defineWithOptionCollect(methodName, instance, args) {
@@ -267,9 +284,9 @@
     }
 
     /***
-     * @method defineStatic(...)
-     * @returns Namespace
-     * @namespace
+     * @method defineStatic(methods)
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
      * @short Defines static methods on the namespace that can later be extended
      *        onto the native globals.
      * @extra Accepts either a single object mapping names to functions, or name
@@ -285,13 +302,17 @@
      *     }
      *   });
      *
+     * @signature defineStatic(methodName, methodFn)
+     * @param {Object} methods - Methods to be defined.
+     * @param {string} methodName - Name of a single method to be defined.
+     * @param {Function} methodFn - Function body of a single method to be defined.
      ***/
     defineWithOptionCollect('defineStatic', STATIC);
 
     /***
-     * @method defineInstance(...)
-     * @returns Namespace
-     * @namespace
+     * @method defineInstance(methods)
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
      * @short Defines methods on the namespace that can later be extended as
      *        instance methods onto the native prototype.
      * @extra Accepts either a single object mapping names to functions, or name
@@ -315,13 +336,17 @@
      *     }
      *   });
      *
+     * @signature defineInstance(methodName, methodFn)
+     * @param {Object} methods - Methods to be defined.
+     * @param {string} methodName - Name of a single method to be defined.
+     * @param {Function} methodFn - Function body of a single method to be defined.
      ***/
     defineWithOptionCollect('defineInstance', INSTANCE);
 
     /***
-     * @method defineInstanceAndStatic(...)
-     * @returns Namespace
-     * @namespace
+     * @method defineInstanceAndStatic(methods)
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
      * @short A shortcut to define both static and instance methods on the namespace.
      * @extra This method is intended for use with `Object` instance methods. Sugar
      *        will not map any methods to `Object.prototype` by default, so defining
@@ -335,14 +360,18 @@
      *     }
      *   });
      *
+     * @signature defineInstanceAndStatic(methodName, methodFn)
+     * @param {Object} methods - Methods to be defined.
+     * @param {string} methodName - Name of a single method to be defined.
+     * @param {Function} methodFn - Function body of a single method to be defined.
      ***/
     defineWithOptionCollect('defineInstanceAndStatic', INSTANCE | STATIC);
 
 
     /***
-     * @method defineStaticWithArguments(...)
-     * @returns Namespace
-     * @namespace
+     * @method defineStaticWithArguments(methods)
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
      * @short Defines static methods that collect arguments.
      * @extra This method is identical to `defineStatic`, except that when defined
      *        methods are called, they will collect any arguments past `n - 1`,
@@ -361,13 +390,17 @@
      *     }
      *   });
      *
+     * @signature defineStaticWithArguments(methodName, methodFn)
+     * @param {Object} methods - Methods to be defined.
+     * @param {string} methodName - Name of a single method to be defined.
+     * @param {Function} methodFn - Function body of a single method to be defined.
      ***/
     defineWithOptionCollect('defineStaticWithArguments', STATIC, true);
 
     /***
-     * @method defineInstanceWithArguments(...)
-     * @returns Namespace
-     * @namespace
+     * @method defineInstanceWithArguments(methods)
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
      * @short Defines instance methods that collect arguments.
      * @extra This method is identical to `defineInstance`, except that when
      *        defined methods are called, they will collect any arguments past
@@ -386,13 +419,17 @@
      *     }
      *   });
      *
+     * @signature defineInstanceWithArguments(methodName, methodFn)
+     * @param {Object} methods - Methods to be defined.
+     * @param {string} methodName - Name of a single method to be defined.
+     * @param {Function} methodFn - Function body of a single method to be defined.
      ***/
     defineWithOptionCollect('defineInstanceWithArguments', INSTANCE, true);
 
     /***
-     * @method defineStaticPolyfill(...)
-     * @returns Namespace
-     * @namespace
+     * @method defineStaticPolyfill(methods)
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
      * @short Defines static methods that are mapped onto the native if they do
      *        not already exist.
      * @extra Intended only for use creating polyfills that follow the ECMAScript
@@ -407,16 +444,21 @@
      *     }
      *   });
      *
+     * @signature defineStaticPolyfill(methodName, methodFn)
+     * @param {Object} methods - Methods to be defined.
+     * @param {string} methodName - Name of a single method to be defined.
+     * @param {Function} methodFn - Function body of a single method to be defined.
      ***/
     setProperty(sugarNamespace, 'defineStaticPolyfill', function(arg1, arg2, arg3) {
       var opts = collectDefineOptions(arg1, arg2, arg3);
       extendNative(globalContext[name], opts.methods, true, opts.last);
+      return sugarNamespace;
     });
 
     /***
-     * @method defineInstancePolyfill(...)
-     * @returns Namespace
-     * @namespace
+     * @method defineInstancePolyfill(methods)
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
      * @short Defines instance methods that are mapped onto the native prototype
      *        if they do not already exist.
      * @extra Intended only for use creating polyfills that follow the ECMAScript
@@ -434,6 +476,10 @@
      *     }
      *   });
      *
+     * @signature defineInstancePolyfill(methodName, methodFn)
+     * @param {Object} methods - Methods to be defined.
+     * @param {string} methodName - Name of a single method to be defined.
+     * @param {Function} methodFn - Function body of a single method to be defined.
      ***/
     setProperty(sugarNamespace, 'defineInstancePolyfill', function(arg1, arg2, arg3) {
       var opts = collectDefineOptions(arg1, arg2, arg3);
@@ -442,22 +488,27 @@
       forEachProperty(opts.methods, function(fn, methodName) {
         defineChainableMethod(sugarNamespace, methodName, fn);
       });
+      return sugarNamespace;
     });
 
     /***
-     * @method alias(<toName>, <fromName>)
-     * @returns Namespace
-     * @namespace
+     * @method alias(toName, from)
+     * @returns SugarNamespace
+     * @namespace SugarNamespace
      * @short Aliases one Sugar method to another.
      *
      * @example
      *
      *   Sugar.Array.alias('all', 'every');
      *
+     * @signature alias(toName, fn)
+     * @param {string} toName - Name for new method.
+     * @param {string|Function} from - Method to alias, or string shortcut.
      ***/
     setProperty(sugarNamespace, 'alias', function(name, source) {
       var method = typeof source === 'string' ? sugarNamespace[source] : source;
       setMethod(sugarNamespace, name, method);
+      return sugarNamespace;
     });
 
     // Each namespace can extend only itself through its .extend method.
@@ -1052,11 +1103,20 @@
       return obj[name];
     }
 
-    function setOption(name, val) {
-      if (val === null) {
-        val = defaults[name];
+    function setOption(arg1, arg2) {
+      var options;
+      if (arguments.length === 1) {
+        options = arg1;
+      } else {
+        options = {};
+        options[arg1] = arg2;
       }
-      obj[name] = val;
+      forEachProperty(options, function(val, name) {
+        if (val === null) {
+          val = defaults[name];
+        }
+        obj[name] = val;
+      });
     }
 
     defineAccessor(namespace, 'getOption', getOption);
@@ -2211,11 +2271,11 @@
 
     /***
      *
-     * @method isArray(<obj>)
+     * @method isArray(obj)
      * @returns Boolean
      * @polyfill ES5
      * @static
-     * @short Returns true if <obj> is an Array.
+     * @short Returns true if `obj` is an Array.
      *
      * @example
      *
@@ -2290,13 +2350,13 @@
     },
 
     /***
-     * @method indexOf(<search>, [fromIndex] = 0)
+     * @method indexOf(search, [fromIndex] = 0)
      * @returns Number
      * @polyfill ES5
-     * @short Searches the array and returns the first index where <search> occurs,
+     * @short Searches the array and returns the first index where `search` occurs,
      *        or `-1` if the element is not found.
      * @extra [fromIndex] is the index from which to begin the search. This
-     *        method performs a simple strict equality comparison on <search>.
+     *        method performs a simple strict equality comparison on `search`.
      *        Sugar does not enhance this method to support `enhanced matching`.
      *        For such functionality, use the `findIndex` method instead.
      *
@@ -2314,13 +2374,13 @@
     },
 
     /***
-     * @method lastIndexOf(<search>, [fromIndex] = array.length - 1)
+     * @method lastIndexOf(search, [fromIndex] = array.length - 1)
      * @returns Number
      * @polyfill ES5
      * @short Searches the array from the end and returns the first index where
-     *        <search> occurs, or `-1` if the element is not found.
+     *        `search` occurs, or `-1` if the element is not found.
      * @extra [fromIndex] is the index from which to begin the search. This method
-     *        performs a simple strict equality comparison on <search>.
+     *        performs a simple strict equality comparison on `search`.
      *        Sugar does not enhance this method to support `enhanced matching`.
      *
      * @example
@@ -2369,23 +2429,23 @@
     },
 
     /***
-     * @method reduce(<fn>, [init])
+     * @method reduce(fn, [init])
      * @returns Mixed
      * @polyfill ES5
      * @short Reduces the array to a single result.
      * @extra This operation is sometimes called "accumulation", as it takes the
-     *        result of the last iteration of <fn> and passes it as the first
+     *        result of the last iteration of `fn` and passes it as the first
      *        argument to the next iteration, "accumulating" that value as it goes.
      *        The return value of this method will be the return value of the final
-     *        iteration of <fn>. If [init] is passed, it will be the initial
+     *        iteration of `fn`. If [init] is passed, it will be the initial
      *        "accumulator" (the first argument). If [init] is not passed, then it
-     *        will take the first element in the array, and <fn> will not be called
+     *        will take the first element in the array, and `fn` will not be called
      *        for that element.
      *
      * @callback fn
      *
      *   acc  The "accumulator". Either [init], the result of the last iteration
-     *        of <fn>, or the first element of the array.
+     *        of `fn`, or the first element of the array.
      *   el   The current element for this iteration.
      *   idx  The current index for this iteration.
      *   arr  A reference to the array.
@@ -2416,7 +2476,7 @@
      * @callback fn
      *
      *   acc  The "accumulator", either [init], the result of the last iteration
-     *        of <fn>, or the last element of the array.
+     *        of `fn`, or the last element of the array.
      *   el   The current element for this iteration.
      *   idx  The current index for this iteration.
      *   arr  A reference to the array.
@@ -2473,10 +2533,10 @@
   defineInstancePolyfill(sugarFunction, {
 
      /***
-     * @method bind(<context>, [arg1], ...)
+     * @method bind(context, [arg1], ...)
      * @returns Function
      * @polyfill ES5
-     * @short Binds <context> as the `this` object for the function when it is
+     * @short Binds `context` as the `this` object for the function when it is
      *        called. Also allows currying an unlimited number of parameters.
      * @extra "currying" means setting parameters ([arg1], [arg2], etc.) ahead of
      *        time so that they are passed when the function is called later. If
@@ -2608,10 +2668,10 @@
   defineInstancePolyfill(sugarString, {
 
     /***
-     * @method includes(<search>, [pos] = 0)
+     * @method includes(search, [pos] = 0)
      * @returns Boolean
      * @polyfill ES6
-     * @short Returns true if <search> is contained within the string.
+     * @short Returns true if `search` is contained within the string.
      * @extra Search begins at [pos], which defaults to the beginning of the
      *        string. Sugar enhances this method to allow matching a regex.
      *
@@ -2631,10 +2691,10 @@
     },
 
     /***
-     * @method startsWith(<search>, [pos] = 0)
+     * @method startsWith(search, [pos] = 0)
      * @returns Boolean
      * @polyfill ES6
-     * @short Returns true if the string starts with substring <search>.
+     * @short Returns true if the string starts with substring `search`.
      * @extra Search begins at [pos], which defaults to the entire string length.
      *
      * @example
@@ -2664,10 +2724,10 @@
     },
 
     /***
-     * @method endsWith(<search>, [pos] = length)
+     * @method endsWith(search, [pos] = length)
      * @returns Boolean
      * @polyfill ES6
-     * @short Returns true if the string ends with substring <search>.
+     * @short Returns true if the string ends with substring `search`.
      * @extra Search ends at [pos], which defaults to the entire string length.
      *
      * @example
@@ -3198,11 +3258,11 @@
   defineInstance(sugarString, {
 
     /***
-     * @method at(<index>, [loop] = false)
+     * @method at(index, [loop] = false)
      * @returns Mixed
      * @short Gets the character(s) at a given index.
      * @extra When [loop] is true, overshooting the end of the string will begin
-     *        counting from the other end. <index> may be negative. If <index> is
+     *        counting from the other end. `index` may be negative. If `index` is
      *        an array, multiple elements will be returned.
      * @example
      *
@@ -3212,6 +3272,9 @@
      *   'jumpy'.at(5, true)       -> 'j'
      *   'jumpy'.at(-1)            -> 'y'
      *   'lucky charms'.at([2, 4]) -> ['u','k']
+     *
+     * @param {number|Array<number>} index
+     * @param {boolean} [loop]
      *
      ***/
     'at': function(str, index, loop) {
@@ -3230,6 +3293,8 @@
      *   'a, b, and c'.escapeURL() -> 'a,%20b,%20and%20c'
      *   'http://foo.com/'.escapeURL(true) -> 'http%3A%2F%2Ffoo.com%2F'
      *
+     * @param {boolean} [param]
+     *
      ***/
     'escapeURL': function(str, param) {
       return param ? encodeURIComponent(str) : encodeURI(str);
@@ -3246,6 +3311,8 @@
      *
      *   'http%3A%2F%2Ffoo.com%2F'.unescapeURL()     -> 'http://foo.com/'
      *   'http%3A%2F%2Ffoo.com%2F'.unescapeURL(true) -> 'http%3A%2F%2Ffoo.com%2F'
+     *
+     * @param {boolean} [partial]
      *
      ***/
     'unescapeURL': function(str, param) {
@@ -3294,7 +3361,7 @@
      *        a string, then it will be used for the replacement. If it returns
      *        `undefined`, the tags will be stripped normally.
      *
-     * @callback replace
+     * @callback tagReplaceFn
      *
      *   tag     The tag name.
      *   inner   The tag content.
@@ -3308,6 +3375,14 @@
      *   '<p>hi!</p>'.stripTags('p', function(all, content) {
      *     return '|';
      *   }); -> '|hi!|'
+     *
+     * @param {string} tag
+     * @param {string|tagReplaceFn} replace
+     * @callbackParam {string} tag
+     * @callbackParam {string} inner
+     * @callbackParam {string} attr
+     * @callbackParam {string} outer
+     * @callbackReturns {string} tagReplaceFn
      *
      ***/
     'stripTags': function(str, tag, replace) {
@@ -3324,7 +3399,7 @@
      *        a string, then it will be used for the replacement. If it returns
      *        `undefined`, the tags will be removed normally.
      *
-     * @callback replace
+     * @callback tagReplaceFn
      *
      *   tag     The tag name.
      *   inner   The tag content.
@@ -3338,6 +3413,14 @@
      *   '<p>hi!</p>'.removeTags('p', function(all, content) {
      *     return 'bye!';
      *   }); -> 'bye!'
+     *
+     * @param {string} tag
+     * @param {string|tagReplaceFn} replace
+     * @callbackParam {string} tag
+     * @callbackParam {string} inner
+     * @callbackParam {string} attr
+     * @callbackParam {string} outer
+     * @callbackReturns {string} tagReplaceFn
      *
      ***/
     'removeTags': function(str, tag, replace) {
@@ -3381,7 +3464,7 @@
     },
 
     /***
-     * @method forEach([search], [fn])
+     * @method forEach([search], [callback])
      * @returns Array
      * @short Runs callback [fn] against every character in the string, or every
      *        every occurence of [search] if it is provided.
@@ -3389,7 +3472,7 @@
      *        regex, and defaults to every character in the string. If [fn]
      *        returns false at any time it will break out of the loop.
      *
-     * @callback fn
+     * @callback stringEachFn
      *
      *   match  The current match.
      *   i      The current index.
@@ -3404,19 +3487,26 @@
      *     // Called twice: "u", "y"
      *   });
      *
+     * @signature forEach(callback)
+     * @param {string|RegExp} [search]
+     * @param {stringEachFn} [callback]
+     * @callbackParam {string} match
+     * @callbackParam {number} i
+     * @callbackParam {Array<string>} arr
+     *
      ***/
     'forEach': function(str, search, fn) {
       return stringEach(str, search, fn);
     },
 
     /***
-     * @method chars([fn])
+     * @method chars([callback])
      * @returns Array
      * @short Runs [fn] against each character in the string, and returns an array.
      *
-     * @callback fn
+     * @callback eachCharFn
      *
-     *   code  The current character.
+     *   char  The current character.
      *   i     The current index.
      *   arr   An array of all characters.
      *
@@ -3427,18 +3517,23 @@
      *     // Called 5 times: "j","u","m","p","y"
      *   });
      *
+     * @param {eachCharFn} [callback]
+     * @callbackParam {string} char
+     * @callbackParam {number} i
+     * @callbackParam {Array<string>} arr
+     *
      ***/
     'chars': function(str, search, fn) {
       return stringEach(str, search, fn);
     },
 
     /***
-     * @method words([fn])
+     * @method words([callback])
      * @returns Array
      * @short Runs [fn] against each word in the string, and returns an array.
      * @extra A "word" is defined as any sequence of non-whitespace characters.
      *
-     * @callback fn
+     * @callback eachWordFn
      *
      *   word  The current word.
      *   i     The current index.
@@ -3451,17 +3546,22 @@
      *     // Called twice: "broken", "wear"
      *   });
      *
+     * @param {eachWordFn} [callback]
+     * @callbackParam {string} word
+     * @callbackParam {number} i
+     * @callbackParam {Array<string>} arr
+     *
      ***/
     'words': function(str, fn) {
       return stringEach(trim(str), /\S+/g, fn);
     },
 
     /***
-     * @method lines([fn])
+     * @method lines([callback])
      * @returns Array
      * @short Runs [fn] against each line in the string, and returns an array.
      *
-     * @callback fn
+     * @callback eachLineFn
      *
      *   line  The current line.
      *   i     The current index.
@@ -3474,18 +3574,23 @@
      *     // Called once per line
      *   });
      *
+     * @param {eachLineFn} [callback]
+     * @callbackParam {string} line
+     * @callbackParam {number} i
+     * @callbackParam {Array<string>} arr
+     *
      ***/
     'lines': function(str, fn) {
       return stringEach(trim(str), /^.*$/gm, fn);
     },
 
     /***
-     * @method codes([fn])
+     * @method codes([callback])
      * @returns Array
      * @short Runs callback [fn] against each character code in the string.
      *        Returns an array of character codes.
      *
-     * @callback fn
+     * @callback eachCodeFn
      *
      *   code  The current character code.
      *   i     The current index.
@@ -3498,20 +3603,27 @@
      *     // Called 5 times: 106, 117, 109, 112, 121
      *   });
      *
+     * @param {eachCodeFn} [callback]
+     * @callbackParam {number} code
+     * @callbackParam {number} i
+     * @callbackParam {string} str
+     *
      ***/
     'codes': function(str, fn) {
       return stringCodes(str, fn);
     },
 
     /***
-     * @method shift(<n>)
+     * @method shift(n)
      * @returns Array
-     * @short Shifts each character in the string <n> places in the character map.
+     * @short Shifts each character in the string `n` places in the character map.
      *
      * @example
      *
      *   'a'.shift(1)  -> 'b'
      *   'ク'.shift(1) -> 'グ'
+     *
+     * @param {number} n
      *
      ***/
     'shift': function(str, n) {
@@ -3556,14 +3668,17 @@
     },
 
     /***
-     * @method insert(<str>, [index] = length)
+     * @method insert(str, [index] = length)
      * @returns String
-     * @short Adds <str> at [index]. Allows negative values.
+     * @short Adds `str` at [index]. Allows negative values.
      *
      * @example
      *
      *   'dopamine'.insert('e', 3)       -> dopeamine
      *   'spelling eror'.insert('r', -3) -> spelling error
+     *
+     * @param {string} str
+     * @param {number} [index]
      *
      ***/
     'insert': function(str, substr, index) {
@@ -3572,10 +3687,10 @@
     },
 
     /***
-     * @method remove(<f>)
+     * @method remove(f)
      * @returns String
-     * @short Removes the first occurrence of <f> in the string.
-     * @extra <f> can be a either case-sensitive string or a regex. In either case
+     * @short Removes the first occurrence of `f` in the string.
+     * @extra `f` can be a either case-sensitive string or a regex. In either case
      *        only the first match will be removed. To remove multiple occurrences,
      *        use `removeAll`.
      *
@@ -3584,16 +3699,18 @@
      *   'schfifty five'.remove('f')      -> 'schifty five'
      *   'schfifty five'.remove(/[a-f]/g) -> 'shfifty five'
      *
+     * @param {string|RegExp} f
+     *
      ***/
     'remove': function(str, f) {
       return str.replace(f, '');
     },
 
     /***
-     * @method removeAll(<f>)
+     * @method removeAll(f)
      * @returns String
-     * @short Removes any occurences of <f> in the string.
-     * @extra <f> can be either a case-sensitive string or a regex. In either case
+     * @short Removes any occurences of `f` in the string.
+     * @extra `f` can be either a case-sensitive string or a regex. In either case
      *        all matches will be removed. To remove only a single occurence, use
      *        `remove`.
      *
@@ -3601,6 +3718,8 @@
      *
      *   'schfifty five'.removeAll('f')     -> 'schity ive'
      *   'schfifty five'.removeAll(/[a-f]/) -> 'shity iv'
+     *
+     * @param {string|RegExp} f
      *
      ***/
     'removeAll': function(str, f) {
@@ -3649,6 +3768,8 @@
      *   'lucky charms'.from()   -> 'lucky charms'
      *   'lucky charms'.from(7)  -> 'harms'
      *
+     * @param {number} [index]
+     *
      ***/
     'from': function(str, from) {
       return str.slice(numberOrIndex(str, from, true));
@@ -3663,6 +3784,8 @@
      *
      *   'lucky charms'.to()   -> 'lucky charms'
      *   'lucky charms'.to(7)  -> 'lucky ch'
+     *
+     * @param {number} [index]
      *
      ***/
     'to': function(str, to) {
@@ -3714,6 +3837,8 @@
      *   'moz-border-radius'.camelize()      -> 'MozBorderRadius'
      *   'moz-border-radius'.camelize(false) -> 'mozBorderRadius'
      *   'http-method'.camelize()            -> 'HTTPMethod'
+     *
+     * @param {boolean} [upper]
      *
      ***/
     'camelize': function(str, upper) {
@@ -3772,11 +3897,11 @@
     },
 
     /***
-     * @method truncate(<length>, [from] = 'right', [ellipsis] = '...')
+     * @method truncate(length, [from] = 'right', [ellipsis] = '...')
      * @returns String
      * @short Truncates a string.
      * @extra [from] can be `'right'`, `'left'`, or `'middle'`. If the string is
-     *        shorter than <length>, [ellipsis] will not be added.
+     *        shorter than `length`, [ellipsis] will not be added.
      *
      * @example
      *
@@ -3784,17 +3909,21 @@
      *   'sittin on the dock'.truncate(10, 'left')   -> '...n the dock'
      *   'sittin on the dock'.truncate(10, 'middle') -> 'sitti... dock'
      *
+     * @param {number} length
+     * @param {string} [from]
+     * @param {string} [ellipsis]
+     *
      ***/
     'truncate': function(str, length, from, ellipsis) {
       return truncateString(str, length, from, ellipsis);
     },
 
     /***
-     * @method truncateOnWord(<length>, [from] = 'right', [ellipsis] = '...')
+     * @method truncateOnWord(length, [from] = 'right', [ellipsis] = '...')
      * @returns String
      * @short Truncates a string without splitting up words.
      * @extra [from] can be `'right'`, `'left'`, or `'middle'`. If the string is
-     *        shorter than <length>, [ellipsis] will not be added. A "word" is
+     *        shorter than `length`, [ellipsis] will not be added. A "word" is
      *        defined as any sequence of non-whitespace characters.
      *
      * @example
@@ -3802,20 +3931,27 @@
      *   'here we go'.truncateOnWord(5)         -> 'here...'
      *   'here we go'.truncateOnWord(5, 'left') -> '...we go'
      *
+     * @param {number} length
+     * @param {string} [from]
+     * @param {string} [ellipsis]
+     *
      ***/
     'truncateOnWord': function(str, length, from, ellipsis) {
       return truncateString(str, length, from, ellipsis, true);
     },
 
     /***
-     * @method pad(<num> = null, [padding] = ' ')
+     * @method pad(num, [padding] = ' ')
      * @returns String
-     * @short Pads the string out with [padding] to be exactly <num> characters.
+     * @short Pads the string out with [padding] to be exactly `num` characters.
      *
      * @example
      *
      *   'wasabi'.pad(8)      -> ' wasabi '
      *   'wasabi'.pad(8, '-') -> '-wasabi-'
+     *
+     * @param {number} num
+     * @param {string} [padding]
      *
      ***/
     'pad': function(str, num, padding) {
@@ -3828,15 +3964,18 @@
     },
 
     /***
-     * @method padLeft(<num> = null, [padding] = ' ')
+     * @method padLeft(num, [padding] = ' ')
      * @returns String
      * @short Pads the string out from the left with [padding] to be exactly
-     *        <num> characters.
+     *        `num` characters.
      *
      * @example
      *
      *   'wasabi'.padLeft(8)      -> '  wasabi'
      *   'wasabi'.padLeft(8, '-') -> '--wasabi'
+     *
+     * @param {number} num
+     * @param {string} [padding]
      *
      ***/
     'padLeft': function(str, num, padding) {
@@ -3845,15 +3984,18 @@
     },
 
     /***
-     * @method padRight(<num> = null, [padding] = ' ')
+     * @method padRight(num, [padding] = ' ')
      * @returns String
      * @short Pads the string out from the right with [padding] to be exactly
-     *        <num> characters.
+     *        `num` characters.
      *
      * @example
      *
      *   'wasabi'.padRight(8)      -> 'wasabi  '
      *   'wasabi'.padRight(8, '-') -> 'wasabi--'
+     *
+     * @param {number} num
+     * @param {string} [padding]
      *
      ***/
     'padRight': function(str, num, padding) {
@@ -3871,6 +4013,8 @@
      *   'lucky charms'.first()  -> 'l'
      *   'lucky charms'.first(3) -> 'luc'
      *
+     * @param {number} [n]
+     *
      ***/
     'first': function(str, num) {
       if (isUndefined(num)) num = 1;
@@ -3886,6 +4030,8 @@
      *
      *   'lucky charms'.last()  -> 's'
      *   'lucky charms'.last(3) -> 'rms'
+     *
+     * @param {number} [n]
      *
      ***/
     'last': function(str, num) {
@@ -3908,6 +4054,8 @@
      *   '10px'.toNumber()   -> 10
      *   'ff'.toNumber(16)   -> 255
      *
+     * @param {number} [base]
+     *
      ***/
     'toNumber': function(str, base) {
       return stringToNumber(str, base);
@@ -3926,6 +4074,9 @@
      *   'HELLO'.capitalize(true)       -> 'Hello'
      *   'hello kitty'.capitalize()     -> 'Hello kitty'
      *   'hEllO kItTy'.capitalize(true, true) -> 'Hello Kitty'
+     *
+     * @param {boolean} [lower]
+     * @param {boolean} [all]
      *
      ***/
     'capitalize': function(str, lower, all) {
@@ -3971,12 +4122,12 @@
   defineInstanceWithArguments(sugarString, {
 
     /***
-     * @method replaceAll(<f>, [str1], [str2], ...)
+     * @method replaceAll(f, [str1], [str2], ...)
      * @returns String
-     * @short Replaces all occurences of <f> with arguments passed.
+     * @short Replaces all occurences of `f` with arguments passed.
      * @extra This method is intended to be a quick way to perform multiple string
      *        replacements quickly when the replacement token differs depending on
-     *        position. <f> can be either a case-sensitive string or a regex.
+     *        position. `f` can be either a case-sensitive string or a regex.
      *        In either case all matches will be replaced.
      *
      * @example
@@ -3984,13 +4135,17 @@
      *   '-x -y -z'.replaceAll('-', 1, 2, 3)               -> '1x 2y 3z'
      *   'one and two'.replaceAll(/one|two/, '1st', '2nd') -> '1st and 2nd'
      *
+     * @param {string|RegExp} f
+     * @param {string} [str1]
+     * @param {string} [str2]
+     *
      ***/
     'replaceAll': function(str, f, args) {
       return stringReplaceAll(str, f, args);
     },
 
     /***
-     * @method format(<obj1>, <obj2>, ...)
+     * @method format(obj1, [obj2], ...)
      * @returns String
      * @short Replaces `{}` tokens in the string with arguments or properties.
      * @extra Tokens support `deep properties`. If a single object is passed, its
@@ -4006,6 +4161,9 @@
      *   '{0.name} and {1.name}'.format(users)       -> logs first two users' names
      *   '${currencies.usd.balance}'.format(Harry)   -> "$500"
      *   '{{Hello}}'.format('Hello')                 -> "{Hello}"
+     *
+     * @param {any} [obj1]
+     * @param {any} [obj2]
      *
      ***/
     'format': function(str, args) {
@@ -4251,9 +4409,9 @@
     },
 
     /***
-     * @method contains(<obj>)
+     * @method contains(el)
      * @returns Boolean
-     * @short Returns true if <obj> is contained inside the range. <obj> may be a
+     * @short Returns true if `el` is contained inside the range. `el` may be a
      *        value or another range.
      *
      * @example
@@ -4264,28 +4422,30 @@
      *   janToMay.contains(marToAug)             -> false
      *   janToMay.contains(febToApr)             -> true
      *
+     * @param {RangeElement} el
+     *
      ***/
-    'contains': function(obj) {
-      if (obj == null) return false;
-      if (obj.start && obj.end) {
-        return obj.start >= this.start && obj.start <= this.end &&
-               obj.end   >= this.start && obj.end   <= this.end;
+    'contains': function(el) {
+      if (el == null) return false;
+      if (el.start && el.end) {
+        return el.start >= this.start && el.start <= this.end &&
+               el.end   >= this.start && el.end   <= this.end;
       } else {
-        return obj >= this.start && obj <= this.end;
+        return el >= this.start && el <= this.end;
       }
     },
 
     /***
-     * @method every(<amount>, [fn])
+     * @method every(amount, [fn])
      * @returns Array
-     * @short Iterates through the range by <amount>, calling [fn] for each step.
+     * @short Iterates through the range by `amount`, calling [fn] for each step.
      * @extra Returns an array of each increment visited. For date ranges,
-     *        <amount> can also be a string like `"2 days"`. This will step
+     *        `amount` can also be a string like `"2 days"`. This will step
      *        through the range by incrementing a date object by that specific
      *        unit, and so is generally preferable for vague units such as
      *        `"2 months"`.
      *
-     * @callback fn
+     * @callback rangeEveryFn
      *
      *   el   The element of the current iteration.
      *   i    The index of the current iteration.
@@ -4299,6 +4459,12 @@
      *   sepToOct.every('week', function() {
      *     // Will be called every week from September to October
      *   })
+     *
+     * @param {string|number} amount
+     * @param {rangeEveryFn} [fn]
+     * @callbackParam {RangeElement} el
+     * @callbackParam {number} i
+     * @callbackParam {Range} r
      *
      ***/
     'every': function(amount, fn) {
@@ -4323,7 +4489,7 @@
     },
 
     /***
-     * @method union(<range>)
+     * @method union(range)
      * @returns Range
      * @short Returns a new range with the earliest starting point as its start,
      *        and the latest ending point as its end. If the two ranges do not
@@ -4334,6 +4500,8 @@
      *   oneToTen.union(fiveToTwenty) -> 1..20
      *   janToMay.union(marToAug)     -> Jan 1, xxxx..Aug 1, xxxx
      *
+     * @param {Range} range
+     *
      ***/
     'union': function(range) {
       return new Range(
@@ -4343,7 +4511,7 @@
     },
 
     /***
-     * @method intersect(<range>)
+     * @method intersect(range)
      * @returns Range
      * @short Returns a new range with the latest starting point as its start,
      *        and the earliest ending point as its end. If the two ranges do not
@@ -4353,6 +4521,8 @@
      *
      *   oneToTen.intersect(fiveToTwenty) -> 5..10
      *   janToMay.intersect(marToAug)     -> Mar 1, xxxx..May 1, xxxx
+     *
+     * @param {Range} range
      *
      ***/
     'intersect': function(range) {
@@ -4381,18 +4551,20 @@
     },
 
     /***
-     * @method clamp(<obj>)
+     * @method clamp(el)
      * @returns Mixed
-     * @short Clamps <obj> to be within the range if it falls outside.
+     * @short Clamps `el` to be within the range if it falls outside.
      *
      * @example
      *
      *   Number.range(1, 5).clamp(8)     -> 5
      *   janToMay.clamp(aug) -> May 1, xxxx
      *
+     * @param {RangeElement} el
+     *
      ***/
-    'clamp': function(obj) {
-      return rangeClamp(this, obj);
+    'clamp': function(el) {
+      return rangeClamp(this, el);
     }
 
   });
@@ -4413,6 +4585,9 @@
      *
      *   String.range('a', 'z')
      *   String.range('t', 'm')
+     *
+     * @param {string} [start]
+     * @param {string} [end]
      *
      ***/
     'range': PrimitiveRangeConstructor
