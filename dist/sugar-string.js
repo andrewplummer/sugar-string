@@ -1,5 +1,5 @@
 /*
- *  Sugar v2.0.2
+ *  Sugar v2.0.3
  *
  *  Freely distributable and licensed under the MIT-style license.
  *  Copyright (c) Andrew Plummer
@@ -3708,7 +3708,7 @@
         result  = [];
 
     if (!rangeIsValid(range)) {
-      return [];
+      return countOnly ? NaN : [];
     }
     if (isFunction(step)) {
       fn = step;
